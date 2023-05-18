@@ -1,14 +1,42 @@
 # Best Practices in Java
 
-### Naming conventions:
+
+
+## Table of Contents
+
+1. [Naming conventions]()
+
+2. [Indentation and formatting]()
+
+3. [Comments]()
+
+4. [Logging]()
+
+5. [Exception handling]()
+
+6. [Class structure]()
+
+7. [Constants and configurations]()
+
+8. [Unit tests]()
+
+9. [Miscellaneous]()
+
+   
+
+
+## Naming conventions
 
 - Class names should be in CamelCase and start with an uppercase letter (e.g., `MyClass`).
 - Method and variable names should be in camelCase and start with a lowercase letter (e.g., `myMethod`, `myVariable`).
 - Constant names should be in uppercase with underscores separating words (e.g., `MY_CONSTANT`).
 - Package names should be in lowercase and follow a reversed domain name convention (e.g., `com.example.myapp`).
 - Use hyphens with all lowercase letters for project name  (e.g., `my-awesome-project`).
+- Use meaningful and descriptive names to enhance code understanding (e.g., `online-shopping-system`        , `ShoppingCart`, `items`, `addItemToCart(Item item)`, `processOrder()`). 
 
-### Indentation and formatting:
+
+
+## Indentation and formatting
 
 - Use consistent indentation using either tabs or spaces (typically 4 spaces).
 - Place opening braces `{` on the same line as the statement or declaration, and closing braces `}` on a new line.
@@ -46,7 +74,7 @@
         }
     }
     ```
-    
+  
 - Align related code to improve readability and maintain a consistent  structure. For example, aligning assignment statements or variable  declarations-
 
   - ```java
@@ -57,11 +85,11 @@
 
     
 
-### Comments:
+## Comments
 
 - Use comments to explain complex logic, provide API documentation, and add clarification where necessary.
 
-- Javadoc comments:
+- **Javadoc comments:**
 
   - Use Javadoc comments (`/** ... */`) to document classes, methods, and variables that are part of the public or protected API of your code.
 
@@ -88,11 +116,9 @@
     }
     ```
 
-    
+- **Normal comments:**
 
-- Normal comments:
-
-  - Use normal comments (inline`// ...` or multiline plus inline `/* ... */`) for providing explanations, clarifications, or context within your code.
+  - Use normal comments (**inline**`// ...` or **multiline plus inline** `/* ... */`) for providing explanations, clarifications, or context within your code.
 
   - ```java
     public class Example {
@@ -112,7 +138,9 @@
     }
     ```
 
-### Logging
+
+
+## Logging
 
 Logging conventions in Java help ensure consistency and readability in  log messages across your codebase. Here are some common logging conventions:
 
@@ -134,7 +162,11 @@ Logging conventions in Java help ensure consistency and readability in  log mess
     logger.info("User '{}' logged in", username);
     ```
 
-### Exception handling
+
+
+## Exception handling
+
+Exception handling is an important aspect of Java programming, and  following conventions can help ensure consistency and maintainability in your code.
 
 - Use specific exception types instead of catching the general `Exception` type.
 
@@ -191,7 +223,7 @@ Logging conventions in Java help ensure consistency and readability in  log mess
 
     
 
-### Class structure
+## Class structure
 
 - Organize classes in logical packages based on their functionality and purpose.
 
@@ -211,7 +243,9 @@ Logging conventions in Java help ensure consistency and readability in  log mess
     │   └── SaleRepository.java
     └── Main.java
     ```
+
 - Place import statements at the beginning of the file and use specific imports instead of wildcards (`import java.util.List;` instead of `import java.util.*;`).
+
 - Follow a standard order of class members: static fields, instance fields, constructors, methods.
 
   - ```java
@@ -252,30 +286,127 @@ Logging conventions in Java help ensure consistency and readability in  log mess
     }
     ```
 
-    
 
-### Unit Tests
+
+## Constants and configurations
+
+Constants provide maintainability, readability, and reusability, while  configuration files offer flexibility, security, and  environment-specific settings.
+
+- Constants are typically defined using the `final` modifier and uppercase letters with underscores for word separation.
+
+  - ```java
+    public class MathUtils {
+        public static final double PI = 3.14159;
+        public static final int MAX_ATTEMPTS = 5;
+    }
+    ```
+
+- For configuration values, it's common to use properties files or configuration classes. In the following example, the configuration values are stored in an `application.properties` file. They are by defult put in `src/main/resources`.
+
+  - ```properties
+    # application.properties
+    
+    # Database configuration
+    db.host=localhost
+    db.port=3306
+    db.username=myuser
+    db.password=mypassword
+    
+    # Email configuration
+    email.smtp.host=smtp.example.com
+    email.smtp.port=587
+    email.smtp.username=myemail@example.com
+    email.smtp.password=mypassword
+    ```
+
+
+
+## Unit tests
 
 Unit testing is an essential practice in software development to ensure  the correctness and reliability of individual units of code.
 
-Test One Behavior Per Test: Each unit test should focus on testing a single behavior or  functionality. This helps maintain test clarity and allows for easier  troubleshooting.
+- **Test One Behaviour Per Test:** Each unit test should focus on testing a single behaviour or  functionality. This helps maintain test clarity and allows for easier  troubleshooting.
+
+- **Use Descriptive Test Method Names:** Choose clear and descriptive names for your test methods that convey the behavior being tested. This enhances readability and understanding of  the test cases.
+
+  - ```java
+    @Test
+    public void addItemShouldIncreaseItemCount() {
+        // Test logic
+    }
+    
+    @Test
+    public void addItemShouldNotAddDuplicateItems() {
+        // Test logic
+    }
+    ```
+
+- **Arrange-Act-Assert (AAA) Pattern:** Follow the AAA pattern in your test methods, where you arrange the test  environment, perform the necessary actions, and then assert the expected outcomes. 
+
+  - ```java
+    @Test
+    public void calculateDiscountShouldApplyPercentageDiscountWhenTotalExceedsThreshold() {
+        // Arrange
+        ShoppingCart cart = new ShoppingCart();
+        cart.addItem(new Item("Item 1", 100.0));
+        cart.addItem(new Item("Item 2", 200.0));
+    
+        // Act
+        double discount = cart.calculateDiscount();
+    
+        // Assert
+        assertEquals(20.0, discount, 0.01);
+    }
+    ```
+
+- **Test Edge Cases and Boundaries:** Test scenarios at the edges and boundaries of input values to ensure the code handles them correctly. This helps identify potential issues or  unexpected behavior.
+
+- **Mock External Dependencies:** Use mocking frameworks (e.g., Mockito) to isolate the unit under test  from its dependencies. This allows for focused testing of the unit's  behavior. 
+
+  - ```java
+    import static org.mockito.Mockito.*;
+    
+    @RunWith(MockitoJUnitRunner.class)
+    public class UserServiceTest {
+    
+        @Mock
+        private UserRepository userRepository;
+    
+        @InjectMocks
+        private UserService userService;
+    
+        @Test
+        public void getUserByIdShouldReturnUserWhenUserExists() {
+            // Arrange
+            long userId = 123;
+            User expectedUser = new User(userId, "John Doe");
+            when(userRepository.getUserById(userId)).thenReturn(expectedUser);
+    
+            // Act
+            User actualUser = userService.getUserById(userId);
+    
+            // Assert
+            assertEquals(expectedUser, actualUser);
+            verify(userRepository, times(1)).getUserById(userId);
+        }
+    }
+    
+    ```
+
+- **Test Driven Development (TDD):** Consider adopting a TDD approach, where tests are written before the  implementation. This helps in designing cleaner and more modular code. 
 
 
 
-
-
-### Miscellaneous
+## Miscellaneous
 
 - Use of final keyword
   - Mark constants with the `final` keyword (`private static final int MAX_COUNT = 10;`).
   - Use `final` for variables or method parameters that should not be reassigned.
 
-- Use meaningful and descriptive variable and method names to enhance code understanding.
 - Avoid unnecessary or excessive comments, exceptions, empty code blocks, or unused code.
 - **Avoid code duplication:** DRY (Don't Repeat Yourself) principle. Extract reusable code into separate methods or classes to avoid duplication and improve maintainability.
 - **Optimize performance:** Write efficient code by considering performance implications. Use appropriate data structures and algorithms, minimize unnecessary object creations, optimize loops, and be mindful of I/O operations.
 - **Document your code:** Provide clear and concise documentation for your code, including method and class-level comments, explaining their purpose, input/output, and any relevant usage instructions. Use tools like Javadoc to generate API documentation.
 - **Use version control:** Utilize a version control system (e.g., Git) to track changes, collaborate with others, and manage your codebase effectively. Follow best practices for branching, merging, and committing code.
 - **Continuously refactor and improve:** Regularly review and refactor your code to improve its design, performance, and maintainability. Apply design patterns, remove code smells, and address technical debt.
-
 
