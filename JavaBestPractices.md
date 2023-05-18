@@ -386,10 +386,6 @@ Unit testing is an essential practice in software development to ensure  the cor
 
 ## Miscellaneous
 
-- Use of final keyword
-  - Mark constants with the `final` keyword (`private static final int MAX_COUNT = 10;`).
-  - Use `final` for variables or method parameters that should not be reassigned.
-
 - Avoid unnecessary or excessive comments, exceptions, empty code blocks, or unused code.
 - **Avoid code duplication:** DRY (Don't Repeat Yourself) principle. Extract reusable code into separate methods or classes to avoid duplication and improve maintainability.
 - **Optimize performance:** Write efficient code by considering performance implications. Use appropriate data structures and algorithms, minimize unnecessary object creations, optimize loops, and be mindful of I/O operations.
