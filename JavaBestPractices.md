@@ -1,6 +1,15 @@
 # Best Practices in Java
 
-[TOC]
+- [Best Practices in Java](#best-practices-in-java)
+  * [Naming conventions](#naming-conventions)
+  * [Indentation and formatting](#indentation-and-formatting)
+  * [Comments](#comments)
+  * [Logging](#logging)
+  * [Exception handling](#exception-handling)
+  * [Class structure](#class-structure)
+  * [Constants and configurations](#constants-and-configurations)
+  * [Unit tests](#unit-tests)
+  * [Miscellaneous](#miscellaneous)
 
 
 ## Naming conventions
