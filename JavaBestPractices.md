@@ -1,28 +1,6 @@
 # Best Practices in Java
 
-
-
-## Table of Contents
-
-1. [Naming conventions](#Naming)
-
-2. [Indentation and formatting]()
-
-3. [Comments]()
-
-4. [Logging]()
-
-5. [Exception handling]()
-
-6. [Class structure]()
-
-7. [Constants and configurations]()
-
-8. [Unit tests]()
-
-9. [Miscellaneous]()
-
-   
+[TOC]
 
 
 ## Naming conventions
