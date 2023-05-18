@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-1. [Naming conventions]()
+1. [Naming conventions](#Naming)
 
 2. [Indentation and formatting]()
 
