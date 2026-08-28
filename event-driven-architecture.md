@@ -1,4 +1,4 @@
-# Event-Driven Architecture
+# Event Driven Architecture
 
 This document explains *why* to use events, *how* to design them, and the specific naming, schema, error-handling, and routing rules that are mandatory across services.
 
