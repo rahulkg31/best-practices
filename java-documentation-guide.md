@@ -1,4 +1,4 @@
-# Documentation Guide for Java Projects — With Examples
+# Documentation Guide for Java Projects 
 
 This expands the original guide with a small worked example for each file, so the structure is concrete rather than abstract.
 
