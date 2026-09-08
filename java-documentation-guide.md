@@ -85,9 +85,3 @@ Best practice: **generate the OpenAPI spec, hand-write a short API.md that expla
 - Where the live OpenAPI JSON and Swagger UI are actually hosted (`/v3/api-docs`, `/swagger-ui.html` or wherever `springdoc.*` is configured — cross-reference CONFIGURATION.md rather than repeating the values).
 
 ------
-
-## The three-file mental model, summarized
-
-> **README** = "how do I run this." **CONFIGURATION.md** = "what can I turn on/off/tune, and what env var does that." **API.md** = "what does the API actually do, as a consumer, not a maintainer."
-
-If you're ever unsure which file a sentence belongs in, ask: *would a frontend developer integrating against this API need to read the whole README to find it?* If yes, it's misplaced.
