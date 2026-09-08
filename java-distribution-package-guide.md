@@ -17,7 +17,7 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 │
 ├── config/                                         # Everything the customer is expected to edit
 │   ├── application.yml                             # Non-sensitive defaults (safe as shipped)
-│   ├── application-prod.yml.template               # Sensitive values — customer copies to application-prod.yml and fills in
+│   ├── application-prod.yml                        # Sensitive values — customer copies to application-prod.yml and fills in
 │   ├── logback-spring.xml                          # Logging config (rotation, level, output path)
 │   └── certs/                                      # Empty — customer drops SSL certs here if TLS is terminated at the app
 │
@@ -34,8 +34,7 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 ├── docker/                                         # Everything needed to run the app in a container
 │   ├── Dockerfile                                  # Multi-stage build: builds/copies the jar, sets up runtime image
 │   ├── docker-compose.yml                          # App + dependencies (DB, cache) for a full local/on-prem stack
-│   ├── docker-compose.prod.yml                     # Optional: prod overrides (resource limits, restart policy, networks)
-│   ├── .env.template                               # Customer copies to .env, fills in secrets/ports — mirrors application-prod.yml.template
+│   ├── .env                                        # Customer copies to .env, fills in secrets/ports — mirrors application-prod.yml.template
 │   ├── entrypoint.sh                               # Container entrypoint — env-to-config translation, wait-for-db, migration toggle
 │   └── healthcheck.sh                              # Used by HEALTHCHECK in Dockerfile / compose healthcheck block
 │
@@ -49,7 +48,6 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 ├── scripts/                                        # Operational helper scripts — day-2 operations, not startup
 │   ├── install.sh                                  # One-time setup: creates dirs, copies config template
 │   ├── healthcheck.sh                              # Verifies the app is actually up (hits /health or equivalent) — bare-metal path
-│   └── backup.sh                                   # Backs up data/config (documents that DB backup is separate)
 │
 ├── README.md                                       # Quick start: install → configure → start → verify
 └── VERSION                                         # Plain text, single line: the version string, nothing else
