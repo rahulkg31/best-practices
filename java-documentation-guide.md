@@ -1,87 +1,210 @@
-# Documentation Guide for Java Projects
+# Documentation Guide for Java Projects — With Examples
+
+This expands the original guide with a small worked example for each file, so the structure is concrete rather than abstract.
 
 | File                    | Job                              | Audience                                 | Changes when...                                 |
-| ----------------------- | -------------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| ------------------------ | --------------------------------- | ------------------------------------------ | -------------------------------------------------- |
 | `README.md`             | Get someone running in 5 minutes | New devs, contributors                   | Stack, build commands, project structure change |
 | `docs/CONFIGURATION.md` | Every setting, exhaustively      | Ops/DevOps, whoever deploys it           | Any property is added/removed/changed           |
 | `docs/API.md`           | Every endpoint, exhaustively     | API consumers, frontend/integration devs | Any endpoint is added/changed                   |
 
-## 1. README.md — instructions
+---
 
-### Required sections, in this order
+## 1. README.md
 
-1. **One-line description** — what the project *is*, not what it's built with.
-2. **Tech stack** — bullet list, versions included (`Java 17`, `Spring Boot 3.2`, not just "Java").
-3. **Project layout** — a tree, 1-line comment per folder. Enough to navigate, not a full file listing.
-4. **Quick Config** (optional but recommended) — 5–8 rows: only the properties someone *must* touch to get it running (DB host/password, port, active profile). Link out to the full `CONFIGURATION.md` for everything else. This is the one place a *little* config detail belongs in the README — just enough that a reader doesn't have to open a second file before their first successful run.
-5. **Running locally** — the actual commands, copy-pasteable, with expected result ("API available at `http://localhost:8080`").
-6. **Running with Docker** — if applicable, same treatment.
-7. **Building the distribution** — how to produce the customer-facing artifact, if this project ships one.
-8. **Running tests** — one command, one line on what's covered (unit vs integration).
-9. **Links out** — to `CONFIGURATION.md`, `API.md`, `INSTALL.md`, `CHANGELOG.md`. This is the connective tissue between the three docs — put it near the top or bottom, not buried.
+### Required sections, in order
+1. One-line description
+2. Tech stack (with versions)
+3. Project layout (tree, 1-line comments)
+4. Quick Config (optional, 5–8 rows)
+5. Running locally
+6. Running with Docker
+7. Building the distribution
+8. Running tests
+9. Links out
 
-------
+### Example
 
-## 2. CONFIGURATION.md — instructions
+```markdown
+# Order Service
+
+Handles order creation, status tracking, and cancellation for the storefront.
+
+## Tech Stack
+- Java 17
+- Spring Boot 3.2
+- PostgreSQL 15
+- Gradle 8.5
+
+## Project Layout
+order-service/
+├── src/main/java/com/acme/orders/   # domain, controllers, services
+├── src/main/resources/              # application.yml, db migrations
+├── src/test/java/                   # unit + integration tests
+└── docker/                          # local docker-compose setup
+
+## Quick Config
+
+| Property                     | Env var         | Default     |
+|-------------------------------|-----------------|-------------|
+| server.port                   | SERVER_PORT     | 8080        |
+| spring.datasource.url         | DB_URL          | (required)  |
+| spring.datasource.password    | DB_PASSWORD     | (required)  |
+| spring.profiles.active        | SPRING_PROFILES_ACTIVE | dev  |
+
+See [CONFIGURATION.md](docs/CONFIGURATION.md) for the full list.
+
+## Running Locally
+\`\`\`bash
+./gradlew bootRun
+\`\`\`
+API available at `http://localhost:8080`.
+
+## Running with Docker
+\`\`\`bash
+docker compose up
+\`\`\`
+
+## Building the Distribution
+\`\`\`bash
+./gradlew bootJar
+\`\`\`
+Produces `build/libs/order-service.jar`.
+
+## Running Tests
+\`\`\`bash
+./gradlew test        # unit tests
+./gradlew integrationTest  # integration tests, requires Docker
+\`\`\`
+
+## Docs
+- [CONFIGURATION.md](docs/CONFIGURATION.md) — all settings
+- [API.md](docs/API.md) — endpoint reference
+```
+
+---
+
+## 2. CONFIGURATION.md
 
 ### Required sections
+1. How configuration is layered
+2. One table per logical group
+3. Standard columns: `Property | Env var override | Default | Description`
+4. "Where to add a new property" checklist
 
-1. **How configuration is layered** — explain the override order explicitly (e.g. `application.yml` → `application-{profile}.yml` → external file → env vars). This one paragraph prevents 80% of "why isn't my setting taking effect" questions.
+### Example
 
-2. **One table per logical group** — not one giant table. Group by: your own custom properties first (most relevant to readers), then framework/infra properties (database, web server, logging, health checks, etc.) grouped by concern.
+```markdown
+# Configuration Reference
 
-3. Each table needs these columns, always in this order:
+## Layering
+Spring Boot resolves properties in this order (later wins):
+`application.yml` → `application-{profile}.yml` → external config file (`--spring.config.location`) → environment variables → command-line args.
 
-   | Property | Env var override | Default | Description |
-   | -------- | ---------------- | ------- | ----------- |
-   |          |                  |         |             |
+## Custom Properties (`com.acme.orders.OrderProperties`)
 
-   For Java/Spring Boot specifically, always show **both** the dotted property name (`spring.datasource.password`) and its environment variable form (`DB_PASSWORD` or `SPRING_DATASOURCE_PASSWORD`) — these look nothing alike and this mapping is the single most-needed lookup in the whole document.
+| Property                  | Env var                | Default | Description |
+|-----------------------------|---------------------------|---------|--------------|
+| orders.cancellation-window | ORDERS_CANCELLATION_WINDOW | 15m    | How long after placement an order can still be cancelled by the customer. Validated as an ISO-8601 duration; invalid values fail startup. |
+| orders.max-items-per-order | ORDERS_MAX_ITEMS_PER_ORDER | 50     | Hard cap on line items per order, enforced at the API layer (400 if exceeded). |
 
-4. **"Where to add a new property"** section at the end — a 3–4 step checklist so the doc stays current as the codebase grows. Docs without an update ritual go stale within a quarter.
+Bound via `@ConfigurationProperties(prefix = "orders")` — see `OrderProperties.java` for the full class if a setting isn't covered here.
 
-### Writing good descriptions
+## Database
 
-- State what happens, not just what it is. Bad: "Connection pool size." Good: "Max concurrent DB connections this instance holds open — tune against your DB's connection limit divided by instance count."
-- Call out anything security-sensitive explicitly: "**Always override this — never run with the default in production.**"
-- If a property has validation (min/max, enum values), say so — it saves someone a failed-startup debugging session.
+| Property                     | Env var             | Default (dev) | Default (prod) | Description |
+|--------------------------------|------------------------|----------------|------------------|--------------|
+| spring.datasource.url          | DB_URL                 | jdbc:postgresql://localhost:5432/orders | (none — required) | JDBC connection string. |
+| spring.datasource.password     | DB_PASSWORD            | postgres       | (none — required) | **Always override this — never run with the default in production.** |
+| spring.datasource.hikari.maximum-pool-size | DB_MAX_POOL_SIZE | 10 | 20 | Max concurrent DB connections this instance holds open — tune against your DB's connection limit divided by instance count. |
 
-### Java/Spring Boot specifics to always include
+## Actuator
 
-- Whether the setting is bound via `@ConfigurationProperties` (custom, in your own code) or is a native Spring Boot property (external, someone else's docs apply) — readers need to know where to go look at source if the table isn't enough.
-- Actuator endpoint exposure (`management.endpoints.web.exposure.include`) — this is a frequent security misconfiguration if undocumented.
-- Profile-specific defaults — show the same property's value across `dev` vs `prod` in the same row when they differ, so nobody assumes dev behavior in production.
+| Property                                    | Env var                     | Default        | Description |
+|-----------------------------------------------|--------------------------------|-----------------|--------------|
+| management.endpoints.web.exposure.include    | MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE | health,info | Expands to `*` in some dev setups — confirm this is scoped down before deploying, since `*` exposes `/actuator/env` and similar sensitive endpoints. |
 
-------
+## Where to Add a New Property
+1. Add the field to the relevant `@ConfigurationProperties` class (or confirm it's a native Spring property).
+2. Add a default to `application.yml` (and `application-prod.yml` if it differs).
+3. Add a row to the appropriate table above, including the env var form.
+4. If security-sensitive, add the "always override" warning.
+```
 
-## 3. API.md — instructions
+---
 
-### Decide first: hand-written or generated?
+## 3. API.md
 
-- **Generated (springdoc-openapi / swagger-annotations)** is almost always better for REST APIs — it can't drift from the actual code, and you get Swagger UI for free. Use this as the primary source of truth.
-- **Hand-written `API.md`** still earns its place for: a human-readable overview (auth flow, pagination convention, error format) that OpenAPI JSON doesn't communicate well on its own, and as a stable reference for consumers who don't want to run Swagger UI.
+### Decide first
+Generate the OpenAPI spec (springdoc-openapi); hand-write a short `API.md` for conventions + a link to Swagger UI, not a full duplicate endpoint list.
 
-Best practice: **generate the OpenAPI spec, hand-write a short API.md that explains the conventions and links to the generated spec/Swagger UI** for the exhaustive endpoint list. Don't hand-maintain a full endpoint-by-endpoint doc alongside annotations — the two will drift within a month.
+### Required sections
+1. Base URL per environment
+2. Auth
+3. Conventions (pagination, errors, versioning)
+4. Endpoint reference (table linking out, or full inline detail for small APIs)
+5. Example `curl` requests
 
-### Required sections for the hand-written API.md
+### Example
 
-1. **Base URL** per environment (local, staging, prod) if they differ.
-2. **Auth** — how to authenticate, where the token/key goes, token lifetime if relevant.
-3. **Conventions** — these save more support time than any individual endpoint doc:
-   - Pagination shape (page/size params, response envelope)
-   - Error response shape (status codes used, error body schema, one example)
-   - Versioning scheme (`/api/v1/...`, header-based, etc.) and deprecation policy
-4. **Endpoint reference** — either a table linking to Swagger UI per resource, or, for a small API, full inline detail per endpoint:
-   - Method + path
-   - One-line purpose
-   - Request body / query params (name, type, required?, constraints)
-   - Success response (status code + example body)
-   - Error responses specific to this endpoint (404, 409, etc. beyond the generic ones)
-5. **Example requests** — at least one full `curl` example per resource. This is what people actually copy-paste; don't skip it even if you have Swagger UI.
+```markdown
+# API Reference
 
-### Java/Spring Boot specifics to always include
+Full interactive spec: `/swagger-ui.html` (see CONFIGURATION.md for `springdoc.*` settings).
 
-- Validation error shape — Spring's `MethodArgumentNotValidException` produces a specific structure (usually via a `@RestControllerAdvice`); show it once so consumers know what a 400 looks like without guessing from Spring's defaults.
-- Where the live OpenAPI JSON and Swagger UI are actually hosted (`/v3/api-docs`, `/swagger-ui.html` or wherever `springdoc.*` is configured — cross-reference CONFIGURATION.md rather than repeating the values).
+## Base URLs
+| Environment | URL |
+|-------------|-----|
+| Local       | http://localhost:8080/api/v1 |
+| Staging     | https://staging.acme.com/api/v1 |
+| Production  | https://api.acme.com/api/v1 |
 
-------
+## Auth
+Bearer JWT in the `Authorization` header. Tokens are issued by the auth service and expire after 1 hour.
+
+## Conventions
+
+**Pagination**: `?page=0&size=20`, response wrapped as:
+\`\`\`json
+{ "content": [...], "page": 0, "size": 20, "totalElements": 137 }
+\`\`\`
+
+**Errors**: 4xx/5xx return:
+\`\`\`json
+{ "status": 404, "error": "Not Found", "message": "Order 123 not found", "timestamp": "..." }
+\`\`\`
+
+Validation errors (400, from `@RestControllerAdvice` around `MethodArgumentNotValidException`):
+\`\`\`json
+{ "status": 400, "error": "Validation Failed", "fields": { "quantity": "must be >= 1" } }
+\`\`\`
+
+**Versioning**: path-based (`/api/v1/...`). Old versions supported for 6 months after a new version ships.
+
+## Endpoints
+
+### Orders
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST   | /orders | Create an order |
+| GET    | /orders/{id} | Get order by ID |
+| DELETE | /orders/{id} | Cancel an order (within cancellation window) |
+
+Full request/response schemas: Swagger UI → "Orders" tag.
+
+### Example: Create an order
+\`\`\`bash
+curl -X POST https://api.acme.com/api/v1/orders \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"items": [{"sku": "SKU-1", "quantity": 2}]}'
+\`\`\`
+
+Success (201):
+\`\`\`json
+{ "id": "ord_123", "status": "PENDING", "items": [{"sku": "SKU-1", "quantity": 2}] }
+\`\`\`
+
+Order-specific errors: `409 Conflict` if the same idempotency key is reused with a different payload.
+```
+
