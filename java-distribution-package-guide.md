@@ -6,23 +6,24 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 {product-name}-{version}/                           # e.g. my-enterprise-app-1.4.2/
 │
 ├── bin/                                            # Executable scripts — how the customer starts/stops the app
-│   ├── start.sh                                    # Linux/Mac start script
+│   ├── start.sh                                    # Linux/Mac start script — launches via classpath (lib/ + lib/deps/*)
 │   ├── start.bat                                   # Windows start script
 │   ├── stop.sh
 │   ├── stop.bat
 │   └── {product}-service.sh                        # Optional: systemd/init.d unit template
 │
 ├── lib/                                            # The application itself
-│   └── {product-name}-{version}.jar                # Fat/uber jar — all deps bundled, single java -jar invocation
+│   ├── {product-name}-{version}.jar                # Thin jar — your compiled classes + MANIFEST.MF (Main-Class, Class-Path)         │   ├── spring-core-6.1.x.jar                   # # Third-party dependency jars, one file per library
+│   ├── jackson-databind-2.x.jar                # # Third-party dependency jars, one file per library
+│   └── ...                                     
 │
 ├── config/                                         # Everything the customer is expected to edit
 │   ├── application.yml                             # Non-sensitive defaults (safe as shipped)
 │   ├── application-prod.yml                        # Sensitive values — customer copies to application-prod.yml and fills in
-│   ├── logback-spring.xml                          # Logging config (rotation, level, output path)
+│   ├── log4j2.xml                                  # Logging config (rotation, level, output path)
 │   └── certs/                                      # Empty — customer drops SSL certs here if TLS is terminated at the app
 │
 ├── logs/                                           # Empty at ship time — created for the customer, populated at runtime
-│   └── .gitkeep
 │
 ├── data/                                           # Empty at ship time — app's runtime data/uploads/working files
 │
@@ -32,7 +33,7 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 │       └── V2__....sql                             # rather than letting the app auto-migrate on startup
 │
 ├── docker/                                         # Everything needed to run the app in a container
-│   ├── Dockerfile                                  # Multi-stage build: builds/copies the jar, sets up runtime image
+│   ├── Dockerfile                                  # Multi-stage build: copies lib/*.jar + lib/deps/*.jar, sets up runtime image
 │   ├── docker-compose.yml                          # App + dependencies (DB, cache) for a full local/on-prem stack
 │   ├── .env                                        # Customer copies to .env, fills in secrets/ports — mirrors application-prod.yml.template
 │   ├── entrypoint.sh                               # Container entrypoint — env-to-config translation, wait-for-db, migration toggle
@@ -53,8 +54,6 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 └── VERSION                                         # Plain text, single line: the version string, nothing else
 ```
 
-
-
 ## What should NEVER ship in a customer package
 
 - Real secrets, passwords, or API keys of any kind (including test/demo ones) — this includes a filled-in `docker/.env`, not just `application-prod.yml`
@@ -62,8 +61,6 @@ A generic, reusable structure for packaging a Java enterprise application as a c
 - Developer-only tooling (test data generators, load-test scripts, internal debug endpoints left enabled)
 - Populated `logs/`/`data/` directories from your own testing, or leftover Docker volumes/images from your build machine
 - A README written for contributors instead of one written for the person installing this
-
-
 
 ## Naming and versioning conventions
 
