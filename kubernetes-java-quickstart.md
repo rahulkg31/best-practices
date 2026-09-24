@@ -336,5 +336,6 @@ kubectl describe <resource> <name>       # deep detail + events
 kubectl logs <pod-name>                  # container logs
 kubectl exec -it <pod-name> -- sh        # shell into a pod
 kubectl delete -f <file>.yaml            # remove resources
-kubectl scale deployment <name> --replicas=N
+kubectl scale deployment <name> --replicas=N 
+kubectl delete deployment <name>        # completely delete the deployment
 ```
